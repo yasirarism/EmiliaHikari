@@ -1,5 +1,7 @@
 import html, time
 import re
+from datetime import datetime
+from pytz import timezone
 import threading
 import requests
 from typing import Optional, List
@@ -30,7 +32,7 @@ from emilia.modules.helper_funcs.alternate import send_message, leave_chat
 
 
 OWNER_SPECIAL = False
-VALID_WELCOME_FORMATTERS = ['first', 'last', 'fullname', 'username', 'id', 'count', 'chatname', 'mention', 'rules']
+VALID_WELCOME_FORMATTERS = ['first', 'last', 'fullname', 'username', 'id', 'count', 'chatname', 'mention', 'rules', 'time']
 
 ENUM_FUNC_MAP = {
 	sql.Types.TEXT.value: dispatcher.bot.send_message,
@@ -153,6 +155,24 @@ def new_member(update, context):
 					else:
 						fullname = first_name
 					count = chat.get_members_count()
+					# Current time in UTC
+					now_utc = datetime.now(timezone('UTC'))
+
+					# Convert to Jakarta time zone
+					jakarta_timezone = now_utc.astimezone(timezone('Asia/Jakarta'))
+
+					if jakarta_timezone.hour < 4:
+					    waktu = "Selamat Dini Hari 🌚"
+					elif 4 <= jakarta_timezone.hour < 12:
+					    waktu = "Selamat Pagi 🌤"
+					elif 12 <= jakarta_timezone.hour < 15:
+					    waktu = "Selamat Siang ☀"
+					elif 15 <= jakarta_timezone.hour < 17:
+					    waktu = "Selamat Sore ⛅"
+					elif 17 <= jakarta_timezone.hour < 18:
+					    waktu = "Selamat Petang 🌥"
+					else:
+					    waktu = "Selamat Malam 🌙"
 					mention = mention_markdown(new_mem.id, first_name)
 					if new_mem.username:
 						username = "@" + escape_markdown(new_mem.username)
@@ -163,7 +183,7 @@ def new_member(update, context):
 					if cust_welcome:
 						formatted_text = cust_welcome.format(first=escape_markdown(first_name),
 											  last=escape_markdown(new_mem.last_name or first_name),
-											  fullname=escape_markdown(fullname), username=username, mention=mention,
+											  fullname=escape_markdown(fullname), username=username, time=waktu, mention=mention,
 											  count=count, chatname=escape_markdown(chat.title), id=new_mem.id, rules=rules)
 					else:
 						formatted_text = ""
@@ -225,6 +245,24 @@ def new_member(update, context):
 						else:
 							fullname = first_name
 						count = chat.get_members_count()
+						# Current time in UTC
+						now_utc = datetime.now(timezone('UTC'))
+
+						# Convert to Europe/Berlin time zone
+						jakarta_timezone = now_utc.astimezone(timezone('Asia/Jakarta'))
+
+						if jakarta_timezone.hour < 4:
+						    waktu = "Selamat Dini Hari 🌚"
+						elif 4 <= jakarta_timezone.hour < 12:
+						    waktu = "Selamat Pagi 🌤"
+						elif 12 <= jakarta_timezone.hour < 15:
+						    waktu = "Selamat Siang ☀"
+						elif 15 <= jakarta_timezone.hour < 17:
+						    waktu = "Selamat Sore ⛅"
+						elif 17 <= jakarta_timezone.hour < 18:
+						    waktu = "Selamat Petang 🌥"
+						else:
+						    waktu = "Selamat Malam 🌙"
 						mention = mention_markdown(new_mem.id, first_name)
 						if new_mem.username:
 							username = "@" + escape_markdown(new_mem.username)
@@ -236,7 +274,7 @@ def new_member(update, context):
 						if valid_format:
 							res = valid_format.format(first=escape_markdown(first_name),
 												  last=escape_markdown(new_mem.last_name or first_name),
-												  fullname=escape_markdown(fullname), username=username, mention=mention,
+												  fullname=escape_markdown(fullname), username=username, time=waktu, mention=mention,
 												  count=count, chatname=escape_markdown(chat.title), id=new_mem.id, rules=rules)
 						else:
 							res = ""
